@@ -263,6 +263,13 @@ export default function BadmintonScheduler() {
     }
   };
 
+  const handleEditPlayer = async (playerId: string, currentName: string) => {
+    const newName = window.prompt("Enter new name:", currentName);
+    if (!newName || newName.trim() === "" || newName === currentName) return;
+    
+    await supabase.from('players').update({ name: newName.trim() }).eq('id', playerId);
+  };
+
   const copyToClipboard = () => {
     if (!selectedGame) return;
     const activePlayers = players.filter((p) => p.status === 'active');
@@ -575,16 +582,21 @@ export default function BadmintonScheduler() {
           
           <ol className="space-y-2.5">
             {activePlayers.map((player, idx) => (
-              <li key={player.id} className="flex justify-between items-center bg-slate-950/80 px-4 py-3 rounded-xl border border-slate-800/60 shadow-sm">
+              <li key={player.id} className="flex justify-between items-center bg-slate-950/80 px-4 py-3 rounded-xl border border-slate-800/60 shadow-sm group">
                 <div className="flex items-center gap-3">
                   <span className="w-5 text-center text-xs font-bold text-slate-600">{idx + 1}</span>
                   <span className={`text-sm font-semibold ${player.is_tentative ? 'text-slate-400 italic' : 'text-slate-200'}`}>
                     {player.name}
                   </span>
                 </div>
-                {player.is_tentative && (
-                  <span className="text-[10px] font-bold tracking-wider bg-slate-800/80 text-slate-400 px-2.5 py-1 rounded-md border border-slate-700/50">TENTATIVE</span>
-                )}
+                <div className="flex items-center gap-2">
+                  {player.is_tentative && (
+                    <span className="text-[10px] font-bold tracking-wider bg-slate-800/80 text-slate-400 px-2.5 py-1 rounded-md border border-slate-700/50">TENTATIVE</span>
+                  )}
+                  <button onClick={() => handleEditPlayer(player.id, player.name)} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-emerald-400 p-1 bg-slate-800/50 rounded-md" title="Edit Player">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  </button>
+                </div>
               </li>
             ))}
             
@@ -611,9 +623,14 @@ export default function BadmintonScheduler() {
           ) : (
             <ol className="space-y-2">
               {waitlisted.map((player, idx) => (
-                <li key={player.id} className="flex items-center gap-3 bg-slate-950 px-4 py-3 rounded-xl border border-slate-800/40 opacity-80">
-                  <span className="w-5 text-center text-xs font-bold text-slate-600">{idx + 1}</span>
-                  <span className="text-sm font-medium text-slate-400">{player.name}</span>
+                <li key={player.id} className="flex justify-between items-center bg-slate-950 px-4 py-3 rounded-xl border border-slate-800/40 opacity-80 group">
+                  <div className="flex items-center gap-3">
+                    <span className="w-5 text-center text-xs font-bold text-slate-600">{idx + 1}</span>
+                    <span className="text-sm font-medium text-slate-400">{player.name}</span>
+                  </div>
+                  <button onClick={() => handleEditPlayer(player.id, player.name)} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500 hover:text-emerald-400 p-1 bg-slate-800/50 rounded-md" title="Edit Player">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  </button>
                 </li>
               ))}
             </ol>
